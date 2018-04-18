@@ -7,6 +7,7 @@
     "url": "git@github.com:horizons-school-of-technology/horizonello.git"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free-webfonts": "^1.0.6",
     "body-parser": "1.15.0",
     "express": "4.13.4",
     "express-handlebars": "3.0.0",
