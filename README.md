@@ -1,20 +1,3 @@
-Notes: click on board name, list name, or cards to edit them, they save on 'enter'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Horizonello: a Horizons Trello Clone
 
 ## Table of contents

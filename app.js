@@ -35,7 +35,6 @@ app.get('/', function(request, response, next) {
   response.render('index');
 });
 
-
 // Entity functions
 function isValid(entity, obj) {
   if (! _.isUndefined(obj.id) && ! _.isFinite(obj.id)) {
@@ -71,9 +70,9 @@ var LIST_FIELDS = {
     return name && _.isString(name) && name.length;
   },
   pos: _.isNumber,
-  cards: function(cards) {}
-  //   return ! cards || (_.isArray(cards) && _.all(cards, _.isString));
-  // }
+  cards: function(cards) {
+    return ! cards || (_.isArray(cards) && _.all(cards, _.isString));
+  }
 };
 
 // GET /api/lists Get all lists
@@ -85,16 +84,6 @@ listApiRouter.get('/', function(req, resp, next) {
     resp.status(404).end();
   }
 });
-
-listApiRouter.get('/boardName',function(req,resp,next){
-  //console.log("in get boardName")
-  var result = storage.getOne('boardName',null);
-  if (result) {
-    resp.json({ boardName: result });
-  } else {
-    resp.status(404).end();
-  }
-})
 
 // GET /api/lists/:id Get one list
 listApiRouter.get('/:id', function(req, resp, next) {
@@ -108,80 +97,27 @@ listApiRouter.get('/:id', function(req, resp, next) {
 
 // POST /api/lists create new list
 listApiRouter.post('/', function(req, resp, next) {
-  var result = storage.upsert('list',{name: req.body.name, pos:0,cards:[]})
-  if(result){
-    resp.json(result)
-  }
-  else{
-    resp.status(404).end()
+  var fields = getFields(LIST_FIELDS, req.body);
+  fields.pos = parseInt(fields.pos);
+  if (! isValid(LIST_FIELDS, fields)) {
+    resp.status(400).end();
+  } else {
+    console.log('Create list', fields);
+    resp.json(storage.upsert('list', fields));
   }
 });
-
 
 // POST /api/lists/:id Update existing list
-listApiRouter.post('/update', function(req, resp, next) {
-  var result = storage.updateList(
-    parseInt(req.body.listid),
-    req.body.name,
-    parseInt(req.body.pos),
-    req.body.card,
-    parseInt(req.body.card_id))
-  if(result){
-    resp.json(result)
-  }
-  else{
-    resp.status(404).end()
+listApiRouter.post('/:id', function(req, resp, next) {
+  var fields = getFields(LIST_FIELDS, req.body);
+  fields.pos = parseInt(fields.pos);
+  if (! isValid(LIST_FIELDS, fields)) {
+    resp.status(400).end();
+  } else {
+    console.log('Update list', fields);
+    resp.json(storage.upsert('list', fields));
   }
 });
-
-
-//DELETE api/remove/:id Remove existing list
-listApiRouter.delete('/remove', function(req,resp,next){
-  //console.log("removing")
-  //console.log(req)
-  var result = storage.del('list',parseInt(req.body.id))
-  if(result){
-    resp.json(result)
-  }
-  else{
-    resp.status(404).end()
-  }
-});
-
-
-//POST api/boardName Change boardName
-listApiRouter.post('/boardName',function(req,res,next){
-  //console.log("in post boardName")
-  var result = storage.upsert('boardName',req.body.boardName)
-  //console.log(result)
-  if(result){
-    res.json(result)
-  }
-  else{
-    res.status(404).end()
-  }
-})
-
-//POST api/sort Sort lists or cards
-listApiRouter.post('/sort',function(req,res,next){
-  //console.log("got post call")
-  //console.log(req.body)
-  var isMovingUpLeft = req.body.isMovingUpLeft;
-  var result = storage.reSort(
-      req.body.kind,
-      parseInt(req.body.listid),
-      isMovingUpLeft,
-      parseInt(req.body.pos)
-  )
-  if(result.success){
-    //console.log(result)
-    //console.log(result.success)
-    res.json(result)
-  }
-  else{
-    res.status(404).end();
-  }
-})
 
 // Start
 var port = process.env.PORT || 3000;
