@@ -158,7 +158,7 @@ function del(kind, id) {
 
 init();
 
-module.exports = {}
+module.exports = {};
 module.exports.getAll = getAll;
 module.exports.getOne = getOne;
 module.exports.getMany = getMany;

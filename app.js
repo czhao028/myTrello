@@ -6,6 +6,9 @@ var express = require('express');
 var handlebars = require('express-handlebars');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
+var hbs = require('hbs');
+hbs.Handlebars = require('handlebars');
+var fs = require('fs');
 
 // Local dependencies
 var storage = require('./storage');
@@ -28,7 +31,7 @@ app.set('view engine', 'handlebars');
 
 // Add POST request parsing for message bodies
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 // Index Page
 app.get('/', function(request, response, next) {
@@ -53,12 +56,12 @@ function isValid(entity, obj) {
 }
 
 function getFields(entity, obj) {
-  return _.pick(obj, function(v, k) {
+  return _.pick(obj, function(v, k){
     return _.has(entity, k);
   });
 }
 
-// REST Endpoint: /api/list
+// REST Endpoint: /api/lists
 // CRUD actions for list
 var listApiRouter = express.Router();
 app.use('/api/lists', listApiRouter);
@@ -111,6 +114,7 @@ listApiRouter.post('/', function(req, resp, next) {
 listApiRouter.post('/:id', function(req, resp, next) {
   var fields = getFields(LIST_FIELDS, req.body);
   fields.pos = parseInt(fields.pos);
+  fields.id =  parseInt(req.params.id); //fixed Bug, task #2
   if (! isValid(LIST_FIELDS, fields)) {
     resp.status(400).end();
   } else {
@@ -118,6 +122,31 @@ listApiRouter.post('/:id', function(req, resp, next) {
     resp.json(storage.upsert('list', fields));
   }
 });
+
+// var index_hbs = compile_handlebars("index");
+//
+// function render_page(req, res, user_name) {
+//     var context = { user : user_name,
+//                     times : req.session.views,
+//                     login_link : authorizationUri };
+//
+//     var htmlOutputString = index_hbs.run(context);
+//     res.send(htmlOutputString);
+// }
+//
+//
+// // -------------- handlebars functions -------------- //
+// function compile_handlebars(f_name) {
+// 	var template = {};
+// 	template['run'] = hbs.Handlebars.compile(
+// 			read_file_sync(f_name)
+// 		);
+// 	return template;
+// }
+//
+// function read_file_sync(f_name) {
+// 	return fs.readFileSync(__dirname + '/views/'+f_name+'.handlebars').toString();
+// }
 
 // Start
 var port = process.env.PORT || 3000;

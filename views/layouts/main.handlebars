@@ -5,22 +5,131 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>HorizonEllo</title>
   <meta name="viewport" content="width=device-width">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" type="text/css" href="static/css/style.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.1.0/litera/bootstrap.min.css">
+  <link rel="stylesheet" href="https://a.trellocdn.com/dist/core.6e1afdc7313f67c0094c.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+
 </head>
 <body>
-  <header>
-    Your header code here
-  </header>
 
-  {{{ body }}}
+  <h1 style="text-align: center; padding-top: 1%;">Horizonello</h1>
 
-  <footer>
-    Your footer code here
-  </footer>
+  <div id="classic-body" class="chrome chrome-65 windows body-webkit-scrollbars body-board-view" style="background-color: rgb(0, 174, 204); padding: 2%;">
 
-  <script src="js/jquery.min.js"></script>
-  <script src="js/underscore-min.js"></script>
-  <script src="js/script.js"></script>
+  <div id="big-container" style="margin:0 auto;">
+
+    <!--<div class="card border-secondary mb-3" style="display:inline; float:left; width:15%; margin-left: 3%;">
+      <div class="card-header">{{name}}</div>
+      <div class="card-body">
+        <div class = "card">
+          <h4 class="card-title">{{card}}</h4>
+        </div>
+        <div class = "card">
+          <h4 class="card-title">{{card}}</h4>
+        </div>
+      </div>
+    </div>-->
+    <button type="button" id = "AddList" class="btn btn-primary btn-lg btn-block" style="text-align: center;" href="#">Add a List</button>
+  </div>
+  </div>
+
+
+  <script type="text/javascript">
+
+    //started a little with editing values after they're changed
+    // document.addEventListener('keydown', function (event) {
+    //   var esc = event.which == 27,
+    //       nl = event.which == 13,
+    //       el = event.target,
+    //       input = el.nodeName != 'INPUT' && el.nodeName != 'TEXTAREA',
+    //       data = {};
+    //
+    //   if (input) {
+    //     if (esc) {
+    //       // restore state
+    //       document.execCommand('undo');
+    //       el.blur();
+    //     } else if (nl) {
+    //       // save
+    //       data[el.getAttribute('data-name')] = el.innerHTML;
+    var local = "http://localhost:3000";
+    var num_lists = 0;
+    $( document ).ready(function() {
+      $.get("/api/lists")
+          .done(function( data ) {
+              var lists = data["rows"];
+              num_lists = lists.length;
+              for (var i = 0; i < lists.length; i++) {
+                //this code gets the List object
+                var contents = lists[i];
+                var cont_id = contents["id"];
+                //this code adds the actual container card to the trello board
+                visualize_List(cont_id);
+                visualize_Cards(cont_id, contents);
+              }
+          });
+      $("#AddList").click(function(){
+        $.post("/api/lists").done(function (data) {
+          var lists = data["rows"];
+          var contents = lists[i];
+          var cont_id = contents["id"];
+
+          for(var i = 0; i < lists.length; i++){
+            if(document.getElementById(lists[i]+"_list") == null){
+              visualize_List(cont_id, contents);
+              visualize_Cards(cont_id, contents);
+            }
+          }
+        });
+      });
+
+    });
+
+    function visualize_List(cont_id, contents){
+      document.getElementById("big-container").innerHTML += "<div class='card border-secondary mb-3' id = '" + index + "_list' style='display:inline; float:left; width:15%; margin-left: 3%;'></div>";
+    }
+
+    function visualize_Cards(cont_id, contents){
+      var list_card = document.getElementById(cont_id+"_list");
+      //this code adds a header to the container card
+      list_card.innerHTML += '<div class="card-header changeable" contenteditable=true>'+contents["name"]+ '</div>';
+      list_card.innerHTML += '<div class="card-body" id = "card-body' + cont_id+'">';
+      //this code adds the card to the container card, within card-body
+      for (var a = 0; a < contents["cards"].length; a++) {
+        document.getElementById("card-body" + cont_id).innerHTML += '<div class = "card"> <h4 class="card-title changeable" contenteditable=true>' + contents["cards"][i] + '</h4> </div>';
+      }
+      list_card.innerHTML += '<a class="open-card-composer js-open-card-composer" href="#" id="addCard" >Add a card…</a>'
+    }
+
+    function addList(index){
+      //encompassed within addlist button
+
+    }
+
+    function addCard(id, name_card){
+      return $.ajax('/api/lists/'+id, {
+        type: 'POST',
+        data: {
+          name: name,
+          id: id,
+          pos: pos,
+          cards: cards + name_card
+        }
+      });
+    }
+
+
+
+
+
+  <script type = "text/javascript" src="../static/js/jquery.min.js"></script>
+  <script src="../static/js/underscore-min.js"></script>
+  <script src="../static/js/script.js"></script>
+
+
 </body>
 </html>
-
